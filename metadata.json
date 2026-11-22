@@ -1,0 +1,6 @@
+{
+  "name": "Jani AI",
+  "description": "Voice-first personal AI assistant with multilingual Urdu, Hindi, and English intelligence, persistent memory, image AI, and a futuristic holographic dashboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

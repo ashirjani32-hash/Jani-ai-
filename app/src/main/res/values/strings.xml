@@ -1,0 +1,37 @@
+<resources>
+    <string name="app_name">Jani AI</string>
+    <string name="app_tagline">Holographic Voice &amp; Memory Assistant</string>
+    <string name="nav_core">Core</string>
+    <string name="nav_memory">Memory</string>
+    <string name="nav_vision">Vision</string>
+    <string name="nav_systems">Systems</string>
+    <string name="auth_title">JANI AI CORE</string>
+    <string name="auth_subtitle">Personal intelligent assistant with multilingual voice, permanent cloud memory, and holographic HUD.</string>
+    <string name="auth_sign_in_cta">Sign in with Google</string>
+    <string name="auth_security_note">End-to-end Firebase App Check &amp; private per-user Firestore memory vault.</string>
+    <string name="core_status_ready">NEURAL CORE ONLINE</string>
+    <string name="core_status_listening">LISTENING…</string>
+    <string name="core_status_thinking">SYNTHESIZING…</string>
+    <string name="core_status_speaking">SPEAKING…</string>
+    <string name="core_input_hint">Ask Jani in English, Urdu, or Hindi…</string>
+    <string name="core_mic_cd">Activate voice input</string>
+    <string name="core_stop_mic_cd">Stop listening</string>
+    <string name="core_send_cd">Send message</string>
+    <string name="core_tts_toggle_cd">Toggle automatic voice output</string>
+    <string name="core_clear_chat_cd">Clear conversation history</string>
+    <string name="memory_vault_title">MEMORY VAULT</string>
+    <string name="memory_search_hint">Search saved memories…</string>
+    <string name="memory_add_button">Store Memory</string>
+    <string name="memory_empty_title">Memory Vault Empty</string>
+    <string name="memory_empty_body">Say “Remember that…” in English, Urdu, or Hindi, or store a permanent memory manually.</string>
+    <string name="vision_title">VISION &amp; IMAGE AI</string>
+    <string name="vision_mode_generate">Generate Art</string>
+    <string name="vision_mode_analyze">Analyze Photo</string>
+    <string name="vision_prompt_hint">Describe an image to synthesize…</string>
+    <string name="vision_analyze_hint">Ask Jani about the selected photo…</string>
+    <string name="vision_pick_photo">Pick Photo</string>
+    <string name="vision_generate_btn">Synthesize Image</string>
+    <string name="vision_analyze_btn">Analyze with Jani</string>
+    <string name="systems_title">SYSTEMS &amp; COMMANDS</string>
+    <string name="systems_sign_out">Sign Out</string>
+</resources>

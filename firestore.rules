@@ -1,0 +1,142 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global safety net: default deny everything
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidLanguage(lang) {
+      return lang is string && lang in ['AUTO', 'EN', 'UR', 'HI'];
+    }
+
+    function isValidMemoryCategory(category) {
+      return category is string && category in ['FACT', 'PREFERENCE', 'GOAL', 'TASK', 'NOTE'];
+    }
+
+    function isValidMemorySource(source) {
+      return source is string && source in ['MANUAL', 'AUTO'];
+    }
+
+    function isValidUserProfile(data, userId) {
+      return data.userId is string &&
+             data.userId == userId &&
+             isValidLanguage(data.preferredLanguage) &&
+             data.autoSpeak is bool &&
+             data.speechRate is number &&
+             data.speechRate >= 0.5 &&
+             data.speechRate <= 2.0 &&
+             data.createdAt is timestamp &&
+             data.createdAt <= request.time &&
+             data.updatedAt is timestamp &&
+             data.updatedAt <= request.time;
+    }
+
+    function isValidMemoryEntry(data, userId) {
+      return data.userId is string &&
+             data.userId == userId &&
+             isValidMemoryCategory(data.category) &&
+             data.title is string &&
+             data.title.size() >= 1 &&
+             data.title.size() <= 120 &&
+             data.content is string &&
+             data.content.size() >= 1 &&
+             data.content.size() <= 2000 &&
+             isValidMemorySource(data.source) &&
+             data.pinned is bool &&
+             data.createdAt is timestamp &&
+             data.createdAt <= request.time &&
+             data.updatedAt is timestamp &&
+             data.updatedAt <= request.time;
+    }
+
+    function isValidChatMessage(data, userId) {
+      return data.userId is string &&
+             data.userId == userId &&
+             data.role is string &&
+             data.role in ['user', 'assistant'] &&
+             data.text is string &&
+             data.text.size() >= 1 &&
+             data.text.size() <= 8000 &&
+             isValidLanguage(data.language) &&
+             (!('commandAction' in data) || (data.commandAction is string && data.commandAction.size() <= 200)) &&
+             data.createdAt is timestamp &&
+             data.createdAt <= request.time;
+    }
+
+    match /users/{userId} {
+      allow get, list: if isOwner(userId);
+
+      allow create: if isOwner(userId) &&
+                       isValidId(userId) &&
+                       incoming().keys().hasAll(['userId', 'preferredLanguage', 'autoSpeak', 'speechRate', 'createdAt', 'updatedAt']) &&
+                       incoming().keys().hasOnly(['userId', 'preferredLanguage', 'autoSpeak', 'speechRate', 'createdAt', 'updatedAt']) &&
+                       isValidUserProfile(incoming(), userId);
+
+      allow update: if isOwner(userId) &&
+                       isValidId(userId) &&
+                       isValidUserProfile(incoming(), userId) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['preferredLanguage', 'autoSpeak', 'speechRate', 'updatedAt']);
+
+      allow delete: if isOwner(userId) && isValidId(userId);
+
+      match /memories/{memoryId} {
+        allow list: if isOwner(userId);
+        allow get: if isOwner(userId) && isValidId(memoryId);
+
+        allow create: if isOwner(userId) &&
+                         isValidId(memoryId) &&
+                         incoming().keys().hasAll(['userId', 'category', 'title', 'content', 'source', 'pinned', 'createdAt', 'updatedAt']) &&
+                         incoming().keys().hasOnly(['userId', 'category', 'title', 'content', 'source', 'pinned', 'createdAt', 'updatedAt']) &&
+                         isValidMemoryEntry(incoming(), userId);
+
+        allow update: if isOwner(userId) &&
+                         isValidId(memoryId) &&
+                         isValidMemoryEntry(incoming(), userId) &&
+                         incoming().userId == existing().userId &&
+                         incoming().source == existing().source &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().diff(existing()).affectedKeys().hasOnly(['category', 'title', 'content', 'pinned', 'updatedAt']);
+
+        allow delete: if isOwner(userId) && isValidId(memoryId);
+      }
+
+      match /messages/{messageId} {
+        allow list: if isOwner(userId);
+        allow get: if isOwner(userId) && isValidId(messageId);
+
+        allow create: if isOwner(userId) &&
+                         isValidId(messageId) &&
+                         incoming().keys().hasAll(['userId', 'role', 'text', 'language', 'createdAt']) &&
+                         incoming().keys().hasOnly(['userId', 'role', 'text', 'language', 'commandAction', 'createdAt']) &&
+                         isValidChatMessage(incoming(), userId);
+
+        allow update: if false;
+
+        allow delete: if isOwner(userId) && isValidId(messageId);
+      }
+    }
+  }
+}

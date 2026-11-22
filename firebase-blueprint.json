@@ -1,0 +1,132 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User preferences for Jani AI voice output and multilingual settings.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Authenticated Firebase UID owning this profile."
+        },
+        "preferredLanguage": {
+          "type": "string",
+          "enum": ["AUTO", "EN", "UR", "HI"],
+          "description": "Preferred conversation and speech language."
+        },
+        "autoSpeak": {
+          "type": "boolean",
+          "description": "Whether Jani automatically speaks responses aloud."
+        },
+        "speechRate": {
+          "type": "number",
+          "description": "TTS playback speed multiplier between 0.5 and 2.0."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp set via FieldValue.serverTimestamp()."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp set via FieldValue.serverTimestamp()."
+        }
+      },
+      "required": ["userId", "preferredLanguage", "autoSpeak", "speechRate", "createdAt", "updatedAt"]
+    },
+    "MemoryEntry": {
+      "title": "MemoryEntry",
+      "description": "Permanent user memory saved manually or auto-extracted by Jani AI.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Authenticated Firebase UID owning this memory."
+        },
+        "category": {
+          "type": "string",
+          "enum": ["FACT", "PREFERENCE", "GOAL", "TASK", "NOTE"],
+          "description": "Memory classification category."
+        },
+        "title": {
+          "type": "string",
+          "description": "Short summary title for the memory."
+        },
+        "content": {
+          "type": "string",
+          "description": "Full memory content remembered across sessions."
+        },
+        "source": {
+          "type": "string",
+          "enum": ["MANUAL", "AUTO"],
+          "description": "Whether created manually or extracted automatically during chat."
+        },
+        "pinned": {
+          "type": "boolean",
+          "description": "Whether this memory is pinned to the top of Jani's active context."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp set via FieldValue.serverTimestamp()."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp set via FieldValue.serverTimestamp()."
+        }
+      },
+      "required": ["userId", "category", "title", "content", "source", "pinned", "createdAt", "updatedAt"]
+    },
+    "ChatMessageEntry": {
+      "title": "ChatMessageEntry",
+      "description": "Persistent conversation message between the user and Jani AI.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Authenticated Firebase UID owning this conversation."
+        },
+        "role": {
+          "type": "string",
+          "enum": ["user", "assistant"],
+          "description": "Message author role."
+        },
+        "text": {
+          "type": "string",
+          "description": "Message body text in Urdu, Hindi, or English."
+        },
+        "language": {
+          "type": "string",
+          "enum": ["AUTO", "EN", "UR", "HI"],
+          "description": "Detected or selected language code."
+        },
+        "commandAction": {
+          "type": "string",
+          "description": "Optional verified command action label attached to the turn."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp set via FieldValue.serverTimestamp()."
+        }
+      },
+      "required": ["userId", "role", "text", "language", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Per-user Jani AI preferences document."
+    },
+    "/users/{userId}/memories/{memoryId}": {
+      "schema": { "$ref": "#/entities/MemoryEntry" },
+      "description": "Permanent memories scoped to the authenticated user."
+    },
+    "/users/{userId}/messages/{messageId}": {
+      "schema": { "$ref": "#/entities/ChatMessageEntry" },
+      "description": "Persistent conversation history scoped to the authenticated user."
+    }
+  }
+}
